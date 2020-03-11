@@ -1,0 +1,84 @@
+version: '3'
+services:
+  angular-docker:
+    container_name: angular-docker-container
+    restart: always
+    build: ./app-to-run-inside-docker
+    environment:
+      - SSH_PASSWORD=123456
+    ports:
+      - '8081:80'
+      - '8022:22'
+  golang:
+    container_name: go-server # 容器名
+    # 看來下面這個是build Dockerfile
+    build: ./my-go
+    ports:
+      - "8088:8088"
+    links:
+      - "db"
+      - "redis"
+    tty: true
+
+    networks:
+      - code-network  
+  db:
+    image: mysql/mysql-server:5.7
+    restart: always
+    command: --default-authentication-plugin=mysql_native_password --character-set-server=utf8 --collation-server=utf8_general_ci
+    container_name: mysql-db # 容器名
+    environment:
+      MYSQL_ROOT_PASSWORD: 123456
+      MYSQL_USER: student   #創造user 
+      MYSQL_PASSWORD: 123456  #設置這個user的密碼
+      MYSQL_DATABASE: 'rockman'    #創造db
+    ports:
+      - '3306:3306'  #host物理直接映射端口为3306   
+    # networks:
+    #   - code-network
+    # 把這個專案的當前資料夾放到該去的地方
+    volumes: 
+      # - ./config/initdb.sql:/data/application/init.sql   
+      #- ./config/my.cnf:/etc/mysql/conf.d/config-file.cnf
+      - ./config:/docker-entrypoint-initdb.d
+
+  redis:
+    image: 'bitnami/redis:latest'
+    container_name: redis # 容器名
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    ports:
+      - "6379:6379"
+    networks:
+      - code-network
+  admin:
+     image: adminer
+     container_name: mysql-user-ui # 容器名
+     ports:
+       - 8080:8080
+    #  networks:
+    #    - code-network
+  ftpd_server:
+    image: stilliard/pure-ftpd
+    container_name: pure-ftpd
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes: # remember to replace /folder_on_disk/ with the path to where you want to store the files on the host machine
+      - ./config/initdb.sql:/home/admin/
+      - ./config/my.cnf:/etc/pure-ftpd/passwd
+    # uncomment for ssl/tls, see https://github.com/stilliard/docker-pure-ftpd#tls
+    #      - "/folder_on_disk/ssl:/etc/ssl/private/"
+    environment:
+      PUBLICHOST: "localhost"
+      FTP_USER_NAME: "admin"
+      FTP_USER_PASS: "123456"
+      FTP_USER_HOME: /home/admin
+    # also for ssl/tls:
+    #      ADDED_FLAGS: "--tls=2"
+    restart: always
+  
+    
+networks:
+  code-network:
+    driver: bridge
