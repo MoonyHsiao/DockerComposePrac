@@ -1,0 +1,28 @@
+
+kind: pipeline
+name: run_tests
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build
+  image: golang:1.12.4
+  volumes:
+      # Link node_modules cache from host filesystem into container at the expected location
+    - name: node_cache
+      path: /Users/ivanhsiao/Docker/var/Volumes
+      
+  environment:
+    GOOS: linux
+    GOARCH: amd64
+    CGO_ENABLED: 0
+    GO111MODULE: on
+  commands:
+  - whoami
+  - pwd
+  - echo "build end"
+
+
+  

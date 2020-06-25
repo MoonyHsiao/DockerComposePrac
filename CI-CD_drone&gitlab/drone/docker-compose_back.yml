@@ -1,0 +1,68 @@
+version: '2'
+services:
+  drone-local-server:
+    image: drone/drone:1
+    ports:
+      - 8090:80
+      - 443:443
+    volumes:
+
+      
+      - ./droneDBData:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./drone:/var/lib/drone/
+   
+
+    restart: always
+    # detach: true
+    # environment:
+    #   # 不確定是幹嘛的
+    #   - DRONE_OPEN=true
+    #   - DRONE_GIT_ALWAYS_AUTH=false
+    #   - DRONE_RUNNER_CAPACITY=1
+    #   - DRONE_SERVER_PROTO=${DRONE_SERVER_PROTO}
+    #   - DRONE_TLS_AUTOCERT=false
+    #   - DRONE_USER_CREATE=username:nazmulb,admin:true 
+    #   - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+    #   - DRONE_SERVER_HOST=${DRONE_SERVER_HOST}
+    #   - NGROK_URL_WITHOUT_PROTOCOL=${NGROK_URL_WITHOUT_PROTOCOL}
+    #   - DRONE_SECRET=${DRONE_SECRET}
+    #   - DRONE_GITLAB_URL=${DRONE_GITLAB_URL}
+    #   - DRONE_GITLAB_CLIENT_ID=${DRONE_GITLAB_CLIENT_ID}
+    #   - DRONE_GITLAB_CLIENT_SECRET=${DRONE_GITLAB_CLIENT_SECRET}
+    #   - DRONE_GITLAB_SERVER=${DRONE_GITLAB_SERVER}
+    #   - DRONE_LOGS_PRETTY=true
+    #   - DRONE_LOGS_COLOR=true
+    #   - DRONE_HOST=${DRONE_HOST}
+    environment:
+      # 不確定是幹嘛的
+      - DRONE_OPEN=true
+      - DRONE_GIT_ALWAYS_AUTH=false
+      - DRONE_GITHUB_SERVER=https://github.com
+      - DRONE_RUNNER_CAPACITY=1
+      - DRONE_SERVER_PROTO=https
+      - DRONE_TLS_AUTOCERT=true
+      - DRONE_USER_CREATE=username:nazmulb,admin:true 
+      - DRONE_GITHUB=true
+      - DRONE_RPC_SECRET=abc123456789
+      # ====會經常變動的部分====
+      - DRONE_SERVER_HOST=2b0f3103.ngrok.io
+      - NGROK_URL_WITHOUT_PROTOCOL=2b0f3103.ngrok.io.
+      - DRONE_GITHUB_CLIENT_ID=c1d761001983a3bbc7a5
+      - DRONE_GITHUB_CLIENT_SECRET=fd564f752df9787371c21d643d72585a76abafc5
+      - DRONE_SECRET=abc123456789
+    
+     
+  drone-runner:
+    image: drone/drone-runner-docker:1
+    restart: always
+    depends_on:
+      - drone-local-server
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DRONE_RPC_HOST=drone-local-server
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_RUNNER_CAPACITY=3
+
+ 

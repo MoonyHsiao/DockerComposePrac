@@ -1,0 +1,28 @@
+# Binaries for programs and plugins
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+
+# Test binary, build with `go test -c`
+*.test
+
+# Output of the go coverage tool, specifically when used with LiteIDE
+*.out
+
+# go vendor
+vendor
+
+droneDBData
+drone.env
+
+config/setting.yml
+config/config.*.yaml
+config/config.yaml
+config/setting.*.yml
+
+debug
+debug.test
+*debug_bin*
+
