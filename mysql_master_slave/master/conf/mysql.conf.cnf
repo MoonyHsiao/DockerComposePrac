@@ -1,0 +1,17 @@
+[mysqld]
+bind-address=0.0.0.0
+port=3306
+character-set-server=utf8
+default-time-zone='+0:00'
+user=mysql
+init-file=/etc/mysql/initdb.sql
+skip-host-cache
+skip-name-resolve	
+server-id=1
+log_bin = master_bin
+log-bin-index=master_bin.index
+binlog_format=ROW
+lower_case_table_names=1
+
+
+

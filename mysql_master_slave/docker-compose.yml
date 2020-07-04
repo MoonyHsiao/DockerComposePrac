@@ -1,0 +1,47 @@
+version: '3'
+services:
+  mysql_master:
+    image: mysql:${TAG}
+    env_file:
+      - ./master/mysql_master.env
+    container_name: "mysql_master"
+    restart: always
+    ports:
+      - ${MASTER_PORT}:3306
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - ./master/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./master/data:/var/lib/mysql
+      - ./config/master.sql:/etc/mysql/initdb.sql
+    networks:
+      backend:
+        ipv4_address: 192.11.0.11
+
+  mysql_slave:
+    image: mysql:${TAG}
+    env_file:
+      - ./slave/mysql_slave.env
+    container_name: "mysql_slave"
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports:
+      - ${SLAVE_PORT}:3306
+    depends_on:
+      - mysql_master
+    volumes:
+      - ./slave/conf/mysql.conf.cnf:/etc/mysql/conf.d/mysql.conf.cnf
+      - ./slave/data:/var/lib/mysql
+      - ./config/slave.sql:/etc/mysql/initdb.sql
+    networks:
+      backend:
+        ipv4_address: 192.11.0.21
+
+networks:
+  backend:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 192.11.0.0/24
+
